@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-	<name>Google shopping SKU as gtin</name>
-	<code>Google adds SKU as gtin</code>
-	<version>1.0</version>
+	<name>Google Shopping: SKU as GTIN</name>
+	<code>google_shopping_sku_as_gtin</code>
+	<version>1.1.0</version>
 	<author>Shijin</author>
-	<link>https://natureloc.com</link>
+	<link>https://github.com/shijinb/opencart-extension-collection</link>
 
-	<file path="system/library/googleshopping/googleshopping.php" error="skip"  info="SKU as GTIN">
-		<operation error="log">
+	<!--
+		The bundled Google Shopping extension (OpenCart 3.0.3.x and later) only reads the GTIN from the
+		UPC, EAN, JAN or ISBN fields. Stores that keep the barcode in the SKU field can use this to send
+		the SKU as the GTIN.
+
+		The SKU is used only when it looks like a GTIN (8, 12, 13 or 14 digits). Any other SKU falls
+		back to the core behaviour, so internal SKUs such as "TSHIRT-RED-XL" are never sent as GTINs.
+	-->
+	<file path="system/library/googleshopping/googleshopping.php">
+		<operation>
 			<search><![CDATA[if (!empty($row['upc'])) {]]></search>
-			<add position="replace"><![CDATA[            
-              if (!empty($row['sku'])) {
-              	$gtin = $row['sku'];
-              }
-              else if (!empty($row['upc'])) {
-          ]]></add>
+			<add position="replace"><![CDATA[if (!empty($row['sku']) && preg_match('/^(\d{8}|\d{12,14})$/', trim($row['sku']))) {
+                $gtin = trim($row['sku']);
+            } else if (!empty($row['upc'])) {]]></add>
 		</operation>
-		<operation error="skip">
+		<operation>
 			<search><![CDATA[ p.upc,]]></search>
-			<add position="replace"><![CDATA[ p.upc,p.sku,]]></add>
+			<add position="replace"><![CDATA[ p.upc, p.sku,]]></add>
 		</operation>
 	</file>
 </modification>

@@ -1,32 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
 <modification>
-	<name>Product Edit Preview </name>
-	<code>product_edit_and_preview</code>
-	<version>1.1</version>
+	<name>Product Form: Storefront Link</name>
+	<code>product_storefront_link</code>
+	<version>1.2.0</version>
 	<author>Shijin</author>
+	<link>https://github.com/shijinb/opencart-extension-collection</link>
+
+	<!--
+		When editing an existing product, the form title becomes the product name, linked to the
+		product's storefront page (opens in a new tab), so changes can be checked straight away.
+
+		The link uses the product's SEO keyword for the default store and the store's default
+		language when SEO URLs are enabled and a keyword exists, otherwise
+		index.php?route=product/product&product_id=N.
+	-->
 	<file path="admin/controller/catalog/product.php">
 		<operation>
 			<search><![CDATA[if (isset($this->request->post['product_layout'])) {]]></search>
-			<add  position="before"><![CDATA[
-		if (!empty($product_info) && !empty($data['product_seo_url'][0])) {
-		 	$product_seo_url=isset($data['product_seo_url'][0][1])?$data['product_seo_url'][0][1]:'';
-            $data['product_name'] = $product_info['name'];
-            $data['product_href'] = HTTP_CATALOG . $product_seo_url;
-        } else {
-            $data['product_name'] = false;
-            $data['product_href'] = false;
-        }
-		]]></add>
+			<add position="before"><![CDATA[		$data['product_storefront_name'] = '';
+		$data['product_storefront_href'] = '';
+
+		if (!empty($product_info)) {
+			$this->load->model('localisation/language');
+
+			$storefront_language = $this->model_localisation_language->getLanguageByCode($this->config->get('config_language'));
+			$storefront_language_id = $storefront_language ? (int)$storefront_language['language_id'] : (int)$this->config->get('config_language_id');
+			$storefront_base = defined('HTTPS_CATALOG') && HTTPS_CATALOG ? HTTPS_CATALOG : HTTP_CATALOG;
+
+			if ($this->config->get('config_seo_url') && !empty($data['product_seo_url'][0][$storefront_language_id])) {
+				$data['product_storefront_href'] = $storefront_base . $data['product_seo_url'][0][$storefront_language_id];
+			} else {
+				$data['product_storefront_href'] = $storefront_base . 'index.php?route=product/product&product_id=' . (int)$product_info['product_id'];
+			}
+
+			$data['product_storefront_name'] = $product_info['name'];
+		}
+
+]]></add>
 		</operation>
 	</file>
 	<file path="admin/view/template/catalog/product_form.twig">
 		<operation>
 			<search><![CDATA[<h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>]]></search>
-			<add position="replace"><![CDATA[
-        {% if product_name %}
-		<h3 class="panel-title"><i class="fa fa-pencil"></i> <a href="{{ product_href }}" target="_blank">{{ product_name }}&nbsp;<i class="fa fa-external-link"></i></a></h3>{% else %}
-      <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
-        {% endif %}
-      ]]></add>
+			<add position="replace"><![CDATA[{% if product_storefront_href %}
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> <a href="{{ product_storefront_href }}" target="_blank" rel="noopener">{{ product_storefront_name }} <i class="fa fa-external-link"></i></a></h3>
+        {% else %}
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
+        {% endif %}]]></add>
 		</operation>
 	</file>
 </modification>

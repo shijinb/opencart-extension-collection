@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-	<name>Customer online for forwd IP</name>
-	<code>Customer online for forwd IP</code>
-	<version>1.0</version>
+	<name>Customers Online: Forwarded Client IP</name>
+	<code>customer_online_forwarded_ip</code>
+	<version>1.1.0</version>
 	<author>Shijin</author>
-	<link>https://natureloc.com</link>
+	<link>https://github.com/shijinb/opencart-extension-collection</link>
 
-	<file path="catalog/controller/common/footer.php" error="skip"  info="Customer online for forwd IP">
-		<operation error="skip">
+	<!--
+		Behind a reverse proxy, load balancer or CDN, REMOTE_ADDR is the proxy's address, so the
+		"Customers Online" report shows every visitor with the same IP. This records the original
+		client IP from X-Forwarded-For instead.
+
+		Only install this when the store is actually behind a proxy that sets X-Forwarded-For:
+		the header is supplied by the client and can be forged when there is no proxy in front.
+	-->
+	<file path="catalog/controller/common/footer.php">
+		<operation>
 			<search><![CDATA[if (isset($this->request->server['REMOTE_ADDR'])) {]]></search>
-			<add position="replace"><![CDATA[if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)){
-			$ip=$_SERVER["HTTP_X_FORWARDED_FOR"];  
-		}else if (array_key_exists('REMOTE_ADDR', $_SERVER)) { 
-			$ip=$_SERVER["REMOTE_ADDR"]; 
-		}else if (array_key_exists('HTTP_CLIENT_IP', $_SERVER)) {
-			$ip=$_SERVER["HTTP_CLIENT_IP"]; 
-		} else if (isset($this->request->server['REMOTE_ADDR'])) {]]></add>
+			<add position="replace"><![CDATA[$forwarded_ip = '';
+
+			if (!empty($this->request->server['HTTP_X_FORWARDED_FOR'])) {
+				// The header can hold a chain "client, proxy1, proxy2"; the first entry is the client.
+				$forwarded = explode(',', $this->request->server['HTTP_X_FORWARDED_FOR']);
+				$forwarded_ip = trim($forwarded[0]);
+
+				if (!filter_var($forwarded_ip, FILTER_VALIDATE_IP)) {
+					$forwarded_ip = '';
+				}
+			}
+
+			if ($forwarded_ip) {
+				$ip = $forwarded_ip;
+			} elseif (isset($this->request->server['REMOTE_ADDR'])) {]]></add>
 		</operation>
 	</file>
 </modification>

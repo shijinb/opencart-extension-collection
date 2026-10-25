@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-	<name>Increase cart timeout</name>
-	<code>Increase cart expiry timeout</code>
-	<version>1.0</version>
+	<name>Cart Expiry Extension</name>
+	<code>cart_expiry_extension</code>
+	<version>1.1.0</version>
 	<author>Shijin</author>
-	<link>https://natureloc.com</link>
+	<link>https://github.com/shijinb/opencart-extension-collection</link>
 
-	<file path="system/library/cart/cart.php" error="skip"  info="Increase cart timeout to 7 day">
-		<operation error="skip">
+	<!--
+		Core OpenCart 3 deletes guest cart rows (customer_id = 0) one hour after they were added.
+		This keeps them for 7 days so returning guests still find their cart.
+		To use a different period, change "INTERVAL 7 DAY" below (any MySQL interval, e.g. "INTERVAL 48 HOUR").
+	-->
+	<file path="system/library/cart/cart.php">
+		<operation>
 			<search><![CDATA[INTERVAL 1 HOUR]]></search>
 			<add position="replace"><![CDATA[INTERVAL 7 DAY]]></add>
 		</operation>
