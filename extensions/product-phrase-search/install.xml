@@ -1,0 +1,27 @@
+<modification>
+	<name>Product full text search</name>
+	<version>1.1</version>
+	<link>https://www.natureloc.com/</link>
+	<author>Shijin</author>
+	<code>Full text search</code>
+    <file path="catalog/model/catalog/product.php">
+		<operation>
+			<search><![CDATA[$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));]]>
+			</search>
+			<add position="replace">
+				<![CDATA[
+				//$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));
+				$words = array($data['filter_name']);
+				]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_tag'])));]]>
+			</search>
+			<add position="replace">
+				<![CDATA[
+				//$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_tag'])));
+				$words = array($data['filter_tag']);
+				]]></add>
+		</operation>
+    </file>
+</modification>

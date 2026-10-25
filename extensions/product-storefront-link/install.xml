@@ -1,0 +1,32 @@
+<modification>
+	<name>Product Edit Preview </name>
+	<code>product_edit_and_preview</code>
+	<version>1.1</version>
+	<author>Shijin</author>
+	<file path="admin/controller/catalog/product.php">
+		<operation>
+			<search><![CDATA[if (isset($this->request->post['product_layout'])) {]]></search>
+			<add  position="before"><![CDATA[
+		if (!empty($product_info) && !empty($data['product_seo_url'][0])) {
+		 	$product_seo_url=isset($data['product_seo_url'][0][1])?$data['product_seo_url'][0][1]:'';
+            $data['product_name'] = $product_info['name'];
+            $data['product_href'] = HTTP_CATALOG . $product_seo_url;
+        } else {
+            $data['product_name'] = false;
+            $data['product_href'] = false;
+        }
+		]]></add>
+		</operation>
+	</file>
+	<file path="admin/view/template/catalog/product_form.twig">
+		<operation>
+			<search><![CDATA[<h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>]]></search>
+			<add position="replace"><![CDATA[
+        {% if product_name %}
+		<h3 class="panel-title"><i class="fa fa-pencil"></i> <a href="{{ product_href }}" target="_blank">{{ product_name }}&nbsp;<i class="fa fa-external-link"></i></a></h3>{% else %}
+      <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
+        {% endif %}
+      ]]></add>
+		</operation>
+	</file>
+</modification>

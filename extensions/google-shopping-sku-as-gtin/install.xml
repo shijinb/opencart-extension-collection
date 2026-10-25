@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Google shopping SKU as gtin</name>
+	<code>Google adds SKU as gtin</code>
+	<version>1.0</version>
+	<author>Shijin</author>
+	<link>https://natureloc.com</link>
+
+	<file path="system/library/googleshopping/googleshopping.php" error="skip"  info="SKU as GTIN">
+		<operation error="log">
+			<search><![CDATA[if (!empty($row['upc'])) {]]></search>
+			<add position="replace"><![CDATA[            
+              if (!empty($row['sku'])) {
+              	$gtin = $row['sku'];
+              }
+              else if (!empty($row['upc'])) {
+          ]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[ p.upc,]]></search>
+			<add position="replace"><![CDATA[ p.upc,p.sku,]]></add>
+		</operation>
+	</file>
+</modification>

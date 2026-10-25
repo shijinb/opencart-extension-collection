@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>order edit quick save</name>
+    <id>quick_order_edit_ocmod</id>
+    <version>1.0</version>
+    <author>Shijin</author>
+    <link>https://www.natureloc.com</link>
+    <code>quick_order_edit_ocmod</code>
+    <file path="admin/view/template/sale/order_form.twig">
+        <operation>                 
+            <search><![CDATA[class="disabled"]]></search>
+            <add position="replace"><![CDATA[class=""]]></add>
+        </operation>
+        <operation>            
+            <search index="0"><![CDATA[// Disable the tabs]]></search>
+            <add position="before" ><![CDATA[ {#
+                ]]>
+            </add>
+        </operation>
+        <operation>            
+            <search index="0"><![CDATA[// Currency]]></search>
+            <add position="before"><![CDATA[ #} ]]>
+            </add>
+        </operation>
+        <operation>            
+            <search index="0"><![CDATA[<button type="button" id="button-customer"]]></search>
+            <add position="before"><![CDATA[<button type="button" id="button-customer-save" class="btn btn-success" name="quicksave" value="1"><i class="fa fa-check-circle"></i> {{ button_quick_save }}</button>]]>
+            </add>
+        </operation>
+        <operation>            
+            <search index="0"><![CDATA[<button type="button" id="button-payment-address"]]></search>
+            <add position="before" ><![CDATA[<button type="button" id="button-payment-address-save" class="btn btn-success" name="quicksave" value="1"><i class="fa fa-check-circle"></i> {{ button_quick_save }}</button>]]>
+            </add>
+        </operation>
+        <operation>            
+            <search index="0"><![CDATA[<button type="button" id="button-shipping-address"]]></search>
+            <add position="before" ><![CDATA[<button type="button" id="button-shipping-address-save" class="btn btn-success" name="quicksave" value="1"><i class="fa fa-check-circle"></i> {{ button_quick_save }}</button>]]>
+            </add>
+        </operation>
+        <operation>            
+            <search index="0"><![CDATA[$('#button-save').on('click', function() {]]></search>
+            <add position="before" ><![CDATA[$('#button-shipping-address-save').on('click', function() {
+    $.ajax({
+        url: '{{ catalog }}index.php?route=api/shipping/address&api_token={{ api_token }}&store_id=' + $('select[name=\'store_id\'] option:selected').val()+ '&order_id=' + $('input[name=\'order_id\']').val(),
+        type: 'post',
+        data: $('#tab-shipping input[type=\'text\'], #tab-shipping input[type=\'hidden\'], #tab-shipping input[type=\'radio\']:checked, #tab-shipping input[type=\'checkbox\']:checked, #tab-shipping select, #tab-shipping textarea,#button-shipping-address-save'),
+        dataType: 'json',
+        crossDomain: true,
+        beforeSend: function() {
+            $('#button-shipping-address').button('loading');
+        },
+        complete: function() {
+            $('#button-shipping-address').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible, .text-danger').remove();
+            $('.form-group').removeClass('has-error');
+
+            // Check for errors
+            if (json['error']) {
+                if (json['error']['warning']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error']['warning'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                }
+
+                for (i in json['error']) {
+                    var element = $('#input-shipping-' + i.replace('_', '-'));
+
+                    if ($(element).parent().hasClass('input-group')) {
+                        $(element).parent().after('<div class="text-danger">' + json['error'][i] + '</div>');
+                    } else {
+                        $(element).after('<div class="text-danger">' + json['error'][i] + '</div>');
+                    }
+                }
+
+                // Highlight any found errors
+                $('.text-danger').parentsUntil('.form-group').parent().addClass('has-error');
+            }
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '  <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+$('#button-payment-address-save').on('click', function() {
+    $.ajax({
+        url: '{{ catalog }}index.php?route=api/payment/address&api_token={{ api_token }}&store_id=' + $('select[name=\'store_id\'] option:selected').val()+ '&order_id=' + $('input[name=\'order_id\']').val(),
+        type: 'post',
+        data: $('#tab-payment input[type=\'text\'], #tab-payment input[type=\'hidden\'], #tab-payment input[type=\'radio\']:checked, #tab-payment input[type=\'checkbox\']:checked, #tab-payment select, #tab-payment textarea,#button-payment-address-save'),
+        dataType: 'json',
+        crossDomain: true,
+        beforeSend: function() {
+            $('#button-payment-address-save').button('loading');
+        },
+        complete: function() {
+            $('#button-payment-address-save').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible, .text-danger').remove();
+            $('.form-group').removeClass('has-error');
+
+            // Check for errors
+            if (json['error']) {
+                if (json['error']['warning']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error']['warning'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                }
+
+                for (i in json['error']) {
+                    var element = $('#input-payment-' + i.replace('_', '-'));
+
+                    if ($(element).parent().hasClass('input-group')) {
+                        $(element).parent().after('<div class="text-danger">' + json['error'][i] + '</div>');
+                    } else {
+                        $(element).after('<div class="text-danger">' + json['error'][i] + '</div>');
+                    }
+                }
+
+                // Highlight any found errors
+                $('.text-danger').parentsUntil('.form-group').parent().addClass('has-error');
+            } 
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '  <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+$('#button-customer-save').on('click', function() {
+    $.ajax({
+        url: '{{ catalog }}index.php?route=api/customer&api_token={{ api_token }}&store_id=' + $('select[name=\'store_id\'] option:selected').val()+ '&order_id=' + $('input[name=\'order_id\']').val(),
+        type: 'post',
+        data: $('#tab-customer input[type=\'text\'], #tab-customer input[type=\'hidden\'], #tab-customer input[type=\'radio\']:checked, #tab-customer input[type=\'checkbox\']:checked, #tab-customer select, #tab-customer textarea,#button-customer-save'),
+        dataType: 'json',
+        crossDomain: true,
+        beforeSend: function() {
+            $('#button-customer-save').button('loading');
+        },
+        complete: function() {
+             $('#button-customer-save').button('reset');
+        },
+        success: function(json) {
+            $('.alert-dismissible, .text-danger').remove();
+            $('.form-group').removeClass('has-error');
+
+            if (json['error']) {
+                if (json['error']['warning']) {
+                    $('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error']['warning'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                }
+
+                for (i in json['error']) {
+                    var element = $('#input-' + i.replace('_', '-'));
+
+                    if (element.parent().hasClass('input-group')) {
+                        $(element).parent().after('<div class="text-danger">' + json['error'][i] + '</div>');
+                    } else {
+                        $(element).after('<div class="text-danger">' + json['error'][i] + '</div>');
+                    }
+                }
+                // Highlight any found errors
+                $('.text-danger').parentsUntil('.form-group').parent().addClass('has-error');
+            }
+            if (json['success']) {
+                $('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + '  <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/language/en-gb/en-gb.php">
+        <operation>                 
+            <search><![CDATA[$_['button_save']                   = 'Save';]]>  </search>
+            <add position="before"><![CDATA[$_['button_quick_save']             = 'Quick Save';]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/language/en-gb/api/shipping.php">
+        <operation>                 
+            <search><![CDATA[$_['text_address']       = 'Success: Shipping address has been set!';]]>  </search>
+            <add position="after"><![CDATA[$_['text_address_update']       = 'Success: Shipping address updated!';]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/language/en-gb/api/payment.php">
+        <operation>                 
+            <search><![CDATA[$_['text_address']       = 'Success: Payment address has been set!';]]>  </search>
+            <add position="after"><![CDATA[$_['text_address_update']       = 'Success: Payment address has been updated!';]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/language/en-gb/api/customer.php">
+        <operation>                 
+            <search><![CDATA[$_['text_success']       = 'You have successfully modified customers';]]>  </search>
+            <add position="after"><![CDATA[$_['text_success_update']       = 'You have successfully updated customer details';]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/model/checkout/order.php">
+        <operation>                 
+            <search><![CDATA[public function editOrder($order_id, $data) {]]>  </search>
+            <add position="before"><![CDATA[public function editShipping($order_id, $data) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "order` set shipping_firstname = '" . $this->db->escape($data['firstname']) . "', shipping_lastname = '" . $this->db->escape($data['lastname']) . "', shipping_company = '" . $this->db->escape($data['company']) . "', shipping_address_1 = '" . $this->db->escape($data['address_1']) . "', shipping_address_2 = '" . $this->db->escape($data['address_2']) . "', shipping_city = '" . $this->db->escape($data['city']) . "', shipping_postcode = '" . $this->db->escape($data['postcode']) . "', shipping_country = '" . $this->db->escape($data['country']) . "', shipping_country_id = '" . (int)$data['country_id'] . "', shipping_zone = '" . $this->db->escape($data['zone']) . "', shipping_zone_id = '" . (int)$data['zone_id'] . "', shipping_address_format = '" . $this->db->escape($data['address_format']) . "', shipping_custom_field = '" . $this->db->escape(json_encode($data['custom_field'])) . "',date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+    }
+    public function editPayment($order_id, $data) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "order` SET payment_firstname = '" . $this->db->escape($data['firstname']) . "', payment_lastname = '" . $this->db->escape($data['lastname']) . "', payment_company = '" . $this->db->escape($data['company']) . "', payment_address_1 = '" . $this->db->escape($data['address_1']) . "', payment_address_2 = '" . $this->db->escape($data['address_2']) . "', payment_city = '" . $this->db->escape($data['city']) . "', payment_postcode = '" . $this->db->escape($data['postcode']) . "', payment_country = '" . $this->db->escape($data['country']) . "', payment_country_id = '" . (int)$data['country_id'] . "', payment_zone = '" . $this->db->escape($data['zone']) . "', payment_zone_id = '" . (int)$data['zone_id'] . "', payment_address_format = '" . $this->db->escape($data['address_format']) . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+
+    }
+    public function editCustomer($order_id, $data) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "order` SET customer_id = '" . (int)$data['customer_id'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+    }]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/controller/api/shipping.php">
+        <operation>                 
+            <search><![CDATA[$json['success'] = $this->language->get('text_address');]]>  </search>
+            <add position="replace"><![CDATA[if(isset($this->request->post['quicksave'])){
+                        if (isset($this->request->get['order_id'])) {
+                            $order_id = $this->request->get['order_id'];
+                        } else {
+                            $order_id = 0;
+                        }
+                        $this->load->model('checkout/order');
+                        $this->model_checkout_order->editShipping($order_id, $this->session->data['shipping_address']);
+                        $json['success'] = $this->language->get('text_address_update');
+                    }
+                    else{
+                        $json['success'] = $this->language->get('text_address');
+                    }]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/controller/api/payment.php">
+        <operation>                 
+            <search><![CDATA[$json['success'] = $this->language->get('text_address');]]>  </search>
+            <add position="replace"><![CDATA[if(isset($this->request->post['quicksave'])){
+                    if (isset($this->request->get['order_id'])) {
+                        $order_id = $this->request->get['order_id'];
+                    } else {
+                        $order_id = 0;
+                    }
+                    $this->load->model('checkout/order');
+                    $this->model_checkout_order->editPayment($order_id, $this->session->data['payment_address']);
+                    $json['success'] = $this->language->get('text_address_update');
+                }
+                else{
+                    $json['success'] = $this->language->get('text_address');
+                }]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/controller/api/customer.php">
+        <operation>                 
+            <search><![CDATA[$json['success'] = $this->language->get('text_success');]]>  </search>
+            <add position="replace"><![CDATA[if(isset($this->request->post['quicksave'])){
+                        if (isset($this->request->get['order_id'])) {
+                            $order_id = $this->request->get['order_id'];
+                        } else {
+                            $order_id = 0;
+                        }
+                        $this->load->model('checkout/order');
+                        $this->model_checkout_order->editCustomer($order_id, $this->session->data['customer']);
+                        $json['success'] = $this->language->get('text_success_update');
+                    }
+                    else{
+                        $json['success'] = $this->language->get('text_success');
+                    }]]>
+            </add>
+        </operation>
+    </file>
+</modification>

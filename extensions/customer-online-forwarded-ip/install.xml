@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Customer online for forwd IP</name>
+	<code>Customer online for forwd IP</code>
+	<version>1.0</version>
+	<author>Shijin</author>
+	<link>https://natureloc.com</link>
+
+	<file path="catalog/controller/common/footer.php" error="skip"  info="Customer online for forwd IP">
+		<operation error="skip">
+			<search><![CDATA[if (isset($this->request->server['REMOTE_ADDR'])) {]]></search>
+			<add position="replace"><![CDATA[if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)){
+			$ip=$_SERVER["HTTP_X_FORWARDED_FOR"];  
+		}else if (array_key_exists('REMOTE_ADDR', $_SERVER)) { 
+			$ip=$_SERVER["REMOTE_ADDR"]; 
+		}else if (array_key_exists('HTTP_CLIENT_IP', $_SERVER)) {
+			$ip=$_SERVER["HTTP_CLIENT_IP"]; 
+		} else if (isset($this->request->server['REMOTE_ADDR'])) {]]></add>
+		</operation>
+	</file>
+</modification>

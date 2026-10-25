@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Increase cart timeout</name>
+	<code>Increase cart expiry timeout</code>
+	<version>1.0</version>
+	<author>Shijin</author>
+	<link>https://natureloc.com</link>
+
+	<file path="system/library/cart/cart.php" error="skip"  info="Increase cart timeout to 7 day">
+		<operation error="skip">
+			<search><![CDATA[INTERVAL 1 HOUR]]></search>
+			<add position="replace"><![CDATA[INTERVAL 7 DAY]]></add>
+		</operation>
+	</file>
+</modification>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Mobile No Filter</name>
+	<code>Mobile No Filter</code>
+	<version>1.0</version>
+	<author>Shijin</author>
+	<link>https://natureloc.com</link>
+
+	<file path="admin/view/template/sale/order_list.twig" error="skip"  info="Mobile No Filter in order page">
+		<operation error="skip">
+			<search index="0"><![CDATA[<div class="panel-body">]]></search>
+			<add position="after"><![CDATA[
+            <div class="form-group">
+            <label class="control-label" for="input-mobile_no">{{ entry_mobile_no }}</label>
+            <input type="text" name="filter_mobile_no" value="{{ filter_mobile_no }}" placeholder="{{ entry_mobile_no }}" id="input-mobile_no" class="form-control" />
+        </div>
+				]]></add>
+		</operation>
+		<operation error="skip">
+			<search ><![CDATA[var filter_order_id = $('input[name=\'filter_order_id\']').val();]]></search>
+			<add position="after"><![CDATA[
+					var filter_mobile_no = $('input[name=\'filter_mobile_no\']').val();
+					  if (filter_mobile_no) {
+					    url += '&filter_mobile_no=' + encodeURIComponent(filter_mobile_no);
+					  }
+				]]></add>
+		</operation>
+	</file>
+	<file path="admin/controller/sale/order.php" error="skip" >
+		<operation error="skip">
+			<search ><![CDATA[function getList() {]]></search>
+			<add position="after"><![CDATA[
+				if (isset($this->request->get['filter_mobile_no'])) {
+			$filter_mobile_no = $this->request->get['filter_mobile_no'];
+		} else {
+			$filter_mobile_no = '';
+		}
+				]]></add>
+		</operation>
+		<operation error="skip">
+			<search ><![CDATA[public function export() {]]></search>
+			<add position="after"><![CDATA[
+					if (isset($this->request->get['filter_mobile_no'])) {
+			$filter_mobile_no = $this->request->get['filter_mobile_no'];
+		} else {
+			$filter_mobile_no = '';
+		}
+				]]></add>
+		</operation>
+		<operation error="skip">
+			<search ><![CDATA['filter_order_id'        => $filter_order_id,]]></search>
+			<add position="after"><![CDATA['filter_mobile_no'  => $filter_mobile_no,]]></add>
+		</operation>
+		<operation error="skip">
+			<search ><![CDATA[$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];]]></search>
+			<add position="replace"><![CDATA[$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];
+		}
+		if (isset($this->request->get['filter_mobile_no'])) {
+			$url .= '&filter_mobile_no=' . $this->request->get['filter_mobile_no'];
+		]]></add>
+		</operation>
+		<operation error="skip">
+			<search ><![CDATA[$data['filter_order_id'] = $filter_order_id;]]></search>
+			<add position="after"><![CDATA[
+				$data['filter_mobile_no'] = $filter_mobile_no;
+				]]></add>
+		</operation>
+	</file>
+
+
+	<file path="admin/model/sale/order.php" error="skip"  info="Mobile No Filter in order page">
+		<operation error="skip">
+			<search><![CDATA[$sql .= " AND o.total = '" . (float)$data['filter_total'] . "'";]]></search>
+			<add position="replace"><![CDATA[
+				$sql .= " AND o.total = '" . (float)$data['filter_total'] . "'";
+				}if (!empty($data['filter_mobile_no'])) {
+			$sql .= " AND o.telephone = '" . $data['filter_mobile_no'] . "'";
+				]]></add>
+		</operation>
+		<operation error="skip">
+			<search ><![CDATA[$sql .= " AND total = '" . (float)$data['filter_total'] . "'";]]></search>
+			<add position="replace"><![CDATA[
+				$sql .= " AND total = '" . (float)$data['filter_total'] . "'";
+				}
+				if (!empty($data['filter_mobile_no'])) {
+			$sql .= " AND o.telephone = '" . $data['filter_mobile_no'] . "'";
+				]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/language/en-gb/sale/order.php" error="skip"  info="Mobile No Filter in order page">
+		<operation error="skip">
+			<search ><![CDATA[$_['entry_order_id']             = 'Order ID';]]></search>
+			<add position="after"><![CDATA[
+				$_['entry_mobile_no']		 = 'Mobile No';
+				]]></add>
+		</operation>
+	</file>
+</modification>

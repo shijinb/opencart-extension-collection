@@ -1,0 +1,105 @@
+<modification>
+	<name>Hidden Product Tags</name>
+	<version>1.1</version>
+	<link>https://www.natureloc.com/</link>
+	<author>Shijin</author>
+	<code>HiddenTag</code>
+    <file path="admin/model/catalog/product.php">
+		<operation>
+			<search><![CDATA['tag'              => $result['tag']]]>
+			</search>
+			<add position="replace">
+				<![CDATA[
+				'tag'              => $result['tag'],
+				'hidden_tag'       => $result['hidden_tag']
+				]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[tag = '" . $this->db->escape($value['tag']) . "',]]>
+			</search>
+			<add position="replace">
+				<![CDATA[
+				tag = '" . $this->db->escape($value['tag']) . "',hidden_tag = '" . $this->db->escape($value['hidden_tag']) . "',
+				]]></add>
+		</operation>
+    </file>
+    <file path="admin/language/en-gb/catalog/product.php">
+		<operation>
+			<search><![CDATA[$_['entry_tag']              = 'Product Tags';]]>
+			</search>
+			<add position="after">
+				<![CDATA[$_['entry_hidden_tag']       = 'Hidden Product Tags';
+				]]></add>
+		</operation>
+    </file>
+    <file path="admin/view/template/catalog/product_form.twig">
+		<operation>
+			<search><![CDATA[<label class="col-sm-2 control-label" for="input-tag{{ language.language_id }}"><span data-toggle="tooltip" title="{{ help_tag }}">{{ entry_tag }}</span></label>]]>
+			</search>
+			<add position="before">
+				<![CDATA[
+                    <label class="col-sm-2 control-label" for="input-tag{{ language.language_id }}"><span data-toggle="tooltip" title="{{ help_tag }}">{{ entry_hidden_tag }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="text" name="product_description[{{ language.language_id }}][hidden_tag]" value="{{ product_description[language.language_id] ? product_description[language.language_id].hidden_tag }}" placeholder="{{ entry_hidden_tag }}" id="input-hidden_tag{{ language.language_id }}" class="form-control" />
+                    </div>
+                 </div>
+                 <div class="form-group">
+		]]></add>
+		</operation>
+    </file>
+    <file path="catalog/controller/product/product.php">
+		<operation>
+			<search><![CDATA[$data['recurrings'] = $this->model_catalog_product->getProfiles($this->request->get['product_id']);]]>
+			</search>
+			<add position="before">
+				<![CDATA[
+				$data['hidden_tags'] = array();
+
+			if ($product_info['hidden_tag']) {
+				$hidden_tags = explode(',', $product_info['hidden_tag']);
+
+				foreach ($hidden_tags as $tag) {
+					$data['hidden_tags'][] = array(
+						'tag'  => trim($tag),
+						'href' => $this->url->link('product/search', 'tag=' . trim($tag))
+					);
+				}
+			}
+				]]></add>
+		</operation>
+    </file>
+    <file path="catalog/model/catalog/product.php">
+		<operation>
+			<search><![CDATA['tag'              => $query->row['tag'],]]>
+			</search>
+			<add position="after">
+				<![CDATA[
+				'hidden_tag'       => $query->row['hidden_tag'],
+				]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$implode[] = "pd.tag LIKE '%" . $this->db->escape($word) . "%'";]]>
+			</search>
+			<add position="replace">
+				<![CDATA[
+				$implode[] = "pd.tag LIKE '%" . $this->db->escape($word) . "%' OR pd.hidden_tag LIKE '%" . $this->db->escape($word) . "%'";
+				]]></add>
+		</operation>
+    </file>
+    <file path="catalog/view/theme/*/template/product/product.twig">
+		<operation>
+			<search><![CDATA[{% if tags %}]]>
+			</search>
+			<add position="before">
+				<![CDATA[
+				{% if hidden_tags %}
+        <p style="display: none;">
+        {% for i in 0..hidden_tags|length %}
+        {% if i < (hidden_tags|length - 1) %} <a href="{{ hidden_tags[i].href }}">{{ hidden_tags[i].tag }}</a>,
+        {% else %} <a href="{{ hidden_tags[i].href }}">{{ hidden_tags[i].tag }}</a> {% endif %}
+        {% endfor %} </p>
+        {% endif %}
+				]]></add>
+		</operation>
+    </file>
+</modification>
