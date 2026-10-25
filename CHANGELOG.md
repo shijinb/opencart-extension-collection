@@ -4,7 +4,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Each e
 
 ## [Unreleased] – 2026-10-25
 
-First public packaging of the extensions (originally written 2021 for the NatureLoc store). The first commit contains the original files unchanged, so every change below can be reviewed in the history.
+First public packaging of the extensions (originally written in 2021 for a production OpenCart store). The first commit contains the original files unchanged, so every change below can be reviewed in the history.
 
 ### Security
 - order-filter-marketing-code 1.1.0, order-filter-telephone 1.1.0: escape filter values (SQL injection).

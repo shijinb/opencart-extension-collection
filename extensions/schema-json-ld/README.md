@@ -92,7 +92,7 @@ Rewritten (v2.0.0). Problems in v1.0:
 |---|---|---|
 | Every review had a hardcoded rating of **4** | Misrepresented ratings, which is against Google's structured-data policies | Each review's real rating |
 | `availability` was `InStock` when quantity **≥ 0** | Sold-out products advertised as in stock | Quantity > 0 |
-| Store name hardcoded as "NatureLoc" | Not reusable | Store name from settings |
+| Store name hardcoded in the code | Not reusable | Store name from settings |
 | URLs contained `&amp;` | Invalid URLs in JSON | Decoded |
 | Plain `json_encode` inside `<script>` | Possible XSS from product or review text | `JSON_HEX_TAG` |
 | `aggregateRating` used OpenCart's rounded integer rating | 4.5 shown as 5 | Exact average |

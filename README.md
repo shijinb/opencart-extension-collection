@@ -147,7 +147,7 @@ No credentials, API keys, customer data or production configuration are in this 
 
 ## Status and licence
 
-- **Ownership:** written by Shijin for the NatureLoc store (also built by Shijin).
+- **Ownership:** written by Shijin.
 - **Licence:** [MIT](LICENSE). Free to use, modify and redistribute, including commercially, as long as the copyright notice is kept.
 - **Not included:** an *external store / affiliate links* extension (pending an ownership check of bundled third-party code), and a third-party image-manager modification (not the author's work).
 
