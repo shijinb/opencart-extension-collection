@@ -1,0 +1,17 @@
+{
+    "name": "shijinb/opencart-extension-collection",
+    "description": "OCMOD extensions for OpenCart 3.x: order management, SEO structured data, reporting and catalog search.",
+    "type": "project",
+    "require": {
+        "php": ">=7.3"
+    },
+    "require-dev": {
+        "twig/twig": "^3.8"
+    },
+    "scripts": {
+        "test": "bash tests/run.sh"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

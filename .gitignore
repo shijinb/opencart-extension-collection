@@ -1,0 +1,6 @@
+/vendor/
+/.cache/
+/dist/
+.DS_Store
+.idea/
+.vscode/
