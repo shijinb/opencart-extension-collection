@@ -4,6 +4,7 @@ Thirteen OpenCart 3 extensions for order handling, SEO structured data, catalog 
 
 ![OpenCart](https://img.shields.io/badge/OpenCart-3.0.3.8%20–%203.0.5.1-23a1d1)
 ![PHP](https://img.shields.io/badge/PHP-7.3%2B-777bb4)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
 **Quick start:** `scripts/build.sh` → upload `dist/<extension>.ocmod.zip` in **Extensions → Installer** → **Extensions → Modifications → Refresh**.
 
@@ -143,7 +144,7 @@ No credentials, API keys, customer data or production configuration are in this 
 ## Status and licence
 
 - **Ownership:** written by Shijin for the NatureLoc store (also built by Shijin).
-- **Licence:** **not decided yet.** No `LICENSE` file is included, so default copyright applies (all rights reserved) until one is added.
+- **Licence:** [MIT](LICENSE). Free to use, modify and redistribute, including commercially, as long as the copyright notice is kept.
 - **Not included:** an *external store / affiliate links* extension (pending an ownership check of bundled third-party code), and a third-party image-manager modification (not the author's work).
 
 See [CHANGELOG.md](CHANGELOG.md) for the release history.

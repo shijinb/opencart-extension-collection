@@ -2,6 +2,7 @@
     "name": "shijinb/opencart-extension-collection",
     "description": "OCMOD extensions for OpenCart 3.x: order management, SEO structured data, reporting and catalog search.",
     "type": "project",
+    "license": "MIT",
     "require": {
         "php": ">=7.3"
     },
