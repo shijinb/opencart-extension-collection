@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-    <name>order edit quick save</name>
-    <id>quick_order_edit_ocmod</id>
-    <version>1.0</version>
+    <name>Order Edit: Quick Save</name>
+    <code>order_quick_save</code>
+    <version>1.1.0</version>
     <author>Shijin</author>
-    <link>https://www.natureloc.com</link>
-    <code>quick_order_edit_ocmod</code>
+    <link>https://github.com/shijinb/opencart-extension-collection</link>
+
+    <!--
+        Core OpenCart 3 only writes order changes when you step through every tab of
+        Sales > Orders > Edit and press the final Save. This adds "Quick Save" buttons to the
+        Customer, Payment Address and Shipping Address tabs that update just that section of the
+        existing order, and unlocks the tabs so they can be opened in any order.
+
+        Quick Save goes through the same catalog API (api/customer, api/payment/address,
+        api/shipping/address) and validation as the core buttons. Totals, products and the
+        order history are not changed.
+    -->
     <file path="admin/view/template/sale/order_form.twig">
         <operation>                 
             <search><![CDATA[class="disabled"]]></search>
@@ -47,10 +57,10 @@
         dataType: 'json',
         crossDomain: true,
         beforeSend: function() {
-            $('#button-shipping-address').button('loading');
+            $('#button-shipping-address-save').button('loading');
         },
         complete: function() {
-            $('#button-shipping-address').button('reset');
+            $('#button-shipping-address-save').button('reset');
         },
         success: function(json) {
             $('.alert-dismissible, .text-danger').remove();
@@ -224,7 +234,7 @@ $('#button-customer-save').on('click', function() {
             <search><![CDATA[$json['success'] = $this->language->get('text_address');]]>  </search>
             <add position="replace"><![CDATA[if(isset($this->request->post['quicksave'])){
                         if (isset($this->request->get['order_id'])) {
-                            $order_id = $this->request->get['order_id'];
+                            $order_id = (int)$this->request->get['order_id'];
                         } else {
                             $order_id = 0;
                         }
@@ -243,7 +253,7 @@ $('#button-customer-save').on('click', function() {
             <search><![CDATA[$json['success'] = $this->language->get('text_address');]]>  </search>
             <add position="replace"><![CDATA[if(isset($this->request->post['quicksave'])){
                     if (isset($this->request->get['order_id'])) {
-                        $order_id = $this->request->get['order_id'];
+                        $order_id = (int)$this->request->get['order_id'];
                     } else {
                         $order_id = 0;
                     }
@@ -262,7 +272,7 @@ $('#button-customer-save').on('click', function() {
             <search><![CDATA[$json['success'] = $this->language->get('text_success');]]>  </search>
             <add position="replace"><![CDATA[if(isset($this->request->post['quicksave'])){
                         if (isset($this->request->get['order_id'])) {
-                            $order_id = $this->request->get['order_id'];
+                            $order_id = (int)$this->request->get['order_id'];
                         } else {
                             $order_id = 0;
                         }

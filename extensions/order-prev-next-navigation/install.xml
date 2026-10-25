@@ -1,69 +1,85 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <modification>
-	<name>prev-next orders and order status head</name>
-	<code>prev_next_orders_status_text_head</code>
-	<version>1.0</version>
+	<name>Order Info: Previous/Next Navigation and Status Header</name>
+	<code>order_prev_next_navigation</code>
+	<version>1.1.0</version>
 	<author>Shijin</author>
-	<link>https://www.natureloc.com</link>
+	<link>https://github.com/shijinb/opencart-extension-collection</link>
 
+	<!--
+		Adds "Prev" / "Next" buttons and a header showing the order ID and current status to
+		Sales > Orders > View, so staff can work through orders without returning to the list.
+
+		Missing orders (status 0) and orders with an excluded status are skipped. The excluded
+		statuses default to Canceled (7), Failed (10) and Refunded (11) from a default OpenCart
+		install. Edit the $excluded_status_ids list below to match your store's order statuses.
+	-->
+	<file path="admin/language/en-gb/sale/order.php">
+		<operation>
+			<search><![CDATA[$_['text_order']]]></search>
+			<add position="after"><![CDATA[$_['text_order_previous'] = 'Previous order';
+$_['text_order_next'] = 'Next order';]]></add>
+		</operation>
+	</file>
 	<file path="admin/controller/sale/order.php">
-		<operation error="skip">
+		<operation>
 			<search><![CDATA[$this->response->setOutput($this->load->view('sale/order_info', $data));]]></search>
-			<add position="before"><![CDATA[
-				$pre_order_id=$this->model_sale_order->getPreviousOrderID($this->request->get['order_id']);
-			$nxt_order_id=$this->model_sale_order->getNextOrderID($this->request->get['order_id']);
-			if($pre_order_id){
-				$data['prev'] = $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $pre_order_id . $url, true);
-			}
-			if($nxt_order_id){
-				$data['next']= $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $nxt_order_id . $url, true);
-			}
-			]]></add>
+			<add position="before"><![CDATA[			$previous_order_id = $this->model_sale_order->getAdjacentOrderId($order_id, 'previous');
+			$next_order_id = $this->model_sale_order->getAdjacentOrderId($order_id, 'next');
+
+			$data['order_previous'] = $previous_order_id ? $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $previous_order_id . $url, true) : '';
+			$data['order_next'] = $next_order_id ? $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $next_order_id . $url, true) : '';
+]]></add>
 		</operation>
 	</file>
 	<file path="admin/model/sale/order.php">
-		<operation error="skip">
+		<operation>
 			<search><![CDATA[public function getTotalOrdersByStoreId($store_id) {]]></search>
-			<add position="before"><![CDATA[
-				public function getPreviousOrderID($order_id) {
-		$query = $this->db->query("SELECT max(order_id) as pre_order_id FROM `" . DB_PREFIX . "order` WHERE order_id < $order_id and order_status_id > '0' and order_status_id!=7 and order_status_id!=10 and order_status_id!=11");
-		return $query->row['pre_order_id'];
+			<add position="before"><![CDATA[	public function getAdjacentOrderId($order_id, $direction = 'next') {
+		// Order statuses to skip when moving between orders (default install: Canceled, Failed, Refunded).
+		$excluded_status_ids = array(7, 10, 11);
+
+		if ($direction === 'previous') {
+			$sql = "SELECT MAX(order_id) AS order_id FROM `" . DB_PREFIX . "order` WHERE order_id < '" . (int)$order_id . "'";
+		} else {
+			$sql = "SELECT MIN(order_id) AS order_id FROM `" . DB_PREFIX . "order` WHERE order_id > '" . (int)$order_id . "'";
+		}
+
+		$sql .= " AND order_status_id > '0'";
+
+		if ($excluded_status_ids) {
+			$sql .= " AND order_status_id NOT IN (" . implode(',', array_map('intval', $excluded_status_ids)) . ")";
+		}
+
+		$query = $this->db->query($sql);
+
+		return $query->row['order_id'] ? (int)$query->row['order_id'] : 0;
 	}
-	public function getNextOrderID($order_id) {
-		$query = $this->db->query("SELECT min(order_id) as nxt_order_id FROM `" . DB_PREFIX . "order` WHERE order_id > $order_id and order_status_id > '0' and order_status_id!=7 and order_status_id!=10 and order_status_id!=11");
-		return $query->row['nxt_order_id'];
-	}
-			]]></add>
+
+]]></add>
 		</operation>
 	</file>
-
-<file path="admin/view/template/sale/order_info.twig">
-		
-		<operation error="skip">
-			<search><![CDATA[
-				<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
-				]]>
-			</search>
-
-			<add position="after" offset="4"><![CDATA[
-			<div class="row">
-    <div class="container-fluid">
-       <div class="col-md-8">
-        <b style="color:maroon;font-size: 16px"><i class="fa fa-shopping-cart"></i> {{ text_order }} - {{ order_status }}</b>
-       </div>
-      <div class="col-md-4">
-         <ul class="pager pull-right" style="margin: 0px 15px 5px 0px;">
-            {% if prev %}
-            <li><a href="{{ prev }}"><span aria-hidden="true">&larr;</span> Prev</a></li>
-             {% endif %}
-            {% if next %}
-            <li><a href="{{ next }}">Next<span aria-hidden="true">&rarr;</span></a></li>
-            {% endif %}
-          </ul> 
-         </div>
-       </div>
-  </div>
-			]]></add>
-		</operation>		
-</file>
+	<file path="admin/view/template/sale/order_info.twig">
+		<operation>
+			<!-- offset="4": insert after the closing </div> of the page header, above the order panels. -->
+			<search><![CDATA[<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>]]></search>
+			<add position="after" offset="4"><![CDATA[  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-8">
+        <h4><i class="fa fa-shopping-cart"></i> {{ text_order }} &ndash; {{ order_status }}</h4>
+      </div>
+      <div class="col-sm-4">
+        <ul class="pager pull-right" style="margin: 5px 0;">
+          {% if order_previous %}
+          <li><a href="{{ order_previous }}" title="{{ text_order_previous }}">&larr; {{ text_order_previous }}</a></li>
+          {% endif %}
+          {% if order_next %}
+          <li><a href="{{ order_next }}" title="{{ text_order_next }}">{{ text_order_next }} &rarr;</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>]]></add>
+		</operation>
+	</file>
 </modification>
