@@ -1,27 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <modification>
-	<name>Product full text search</name>
-	<version>1.1</version>
-	<link>https://www.natureloc.com/</link>
+	<name>Product Phrase Search</name>
+	<code>product_phrase_search</code>
+	<version>1.2.0</version>
 	<author>Shijin</author>
-	<code>Full text search</code>
-    <file path="catalog/model/catalog/product.php">
+	<link>https://github.com/shijinb/opencart-extension-collection</link>
+
+	<!--
+		Core OpenCart splits a search into words and requires every word to appear somewhere in the
+		product name (and tags). "aloe vera gel" therefore also matches "Vera Wang ... gel ... aloe".
+		This makes the storefront search match the phrase as typed instead.
+	-->
+	<file path="catalog/model/catalog/product.php">
 		<operation>
-			<search><![CDATA[$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));]]>
-			</search>
-			<add position="replace">
-				<![CDATA[
-				//$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));
-				$words = array($data['filter_name']);
-				]]></add>
+			<search><![CDATA[$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));]]></search>
+			<add position="replace"><![CDATA[$words = array(trim(preg_replace('/\s+/', ' ', $data['filter_name'])));]]></add>
 		</operation>
 		<operation>
-			<search><![CDATA[$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_tag'])));]]>
-			</search>
-			<add position="replace">
-				<![CDATA[
-				//$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_tag'])));
-				$words = array($data['filter_tag']);
-				]]></add>
+			<search><![CDATA[$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_tag'])));]]></search>
+			<add position="replace"><![CDATA[$words = array(trim(preg_replace('/\s+/', ' ', $data['filter_tag'])));]]></add>
 		</operation>
-    </file>
+	</file>
 </modification>
