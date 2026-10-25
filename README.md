@@ -2,6 +2,7 @@
 
 Thirteen OpenCart 3 extensions for order handling, SEO structured data, catalog search and inventory reporting, built for and used on a production store. Every extension is checked against four official OpenCart releases with an OCMOD harness that reproduces OpenCart's own patch engine, and against MySQL with model-level integration tests.
 
+[![CI](https://github.com/shijinb/opencart-extension-collection/actions/workflows/ci.yml/badge.svg)](https://github.com/shijinb/opencart-extension-collection/actions/workflows/ci.yml)
 ![OpenCart](https://img.shields.io/badge/OpenCart-3.0.3.8%20–%203.0.5.1-23a1d1)
 ![PHP](https://img.shields.io/badge/PHP-7.3%2B-777bb4)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
@@ -50,7 +51,7 @@ Each extension's README covers its behaviour, the files it modifies, install and
 
 - **Themes:** template operations target the default theme's markup. `catalog/view/theme/*/` paths also patch custom themes, but only where their markup matches. Check **Extensions → Modifications → Log** after refreshing.
 - **OpenCart 2.x / 4.x:** not supported. OpenCart 4 replaced OCMOD with events.
-- **PHP:** targets PHP 7.3 and newer. Older PHP versions that OpenCart 3.0.3.x itself still runs on are not targeted. The local run used PHP 8.3 only. CI is set up for PHP 7.4, 8.1 and 8.3 but has **not run yet** (the repository has not been pushed).
+- **PHP:** targets PHP 7.3 and newer. Older PHP versions that OpenCart 3.0.3.x itself still runs on are not targeted. CI runs PHP 7.4 (OpenCart 3.0.3.8 and 3.0.3.9), 8.1 (3.0.4.1) and 8.3 (3.0.5.1); PHP 7.3 itself is not tested.
 
 ## Installation
 
@@ -83,7 +84,10 @@ OC_VERSIONS=3.0.5.1 tests/run.sh     # a single version
 | Unit | JSON-LD builder: text cleanup, URLs, prices, availability, ratings, `</script>` escaping (29 checks) | `tests/unit/` |
 | Integration | Patched models run through OpenCart's own `DB\MySQLi` driver against its install SQL plus synthetic fixtures: order filters, SQL-injection attempts, prev/next order, stock report rows and filters, phrase and tag search, category trail, rating summary (38 checks) | `tests/integration/` |
 
-**Last local run** (2026-10-25, macOS, PHP 8.3.30, MySQL 8.4.9): harness 0 errors / 0 warnings on all four versions; unit 29/29; integration 38/38 on each of the four versions.
+**Verified runs** (2026-10-25):
+
+- Local: macOS, PHP 8.3.30, MySQL 8.4.9. Harness 0 errors / 0 warnings on all four versions; unit 29/29; integration 38/38 on each version.
+- GitHub Actions (CI run #2): Ubuntu, MySQL 8.0, the full matrix above (PHP 7.4 / 8.1 / 8.3), all jobs passed.
 
 **Not covered automatically:** controller and browser behaviour, such as the Quick Save AJAX flow, rendered admin pages and storefront output. These need a running store and should be checked manually; each extension's README says which.
 
